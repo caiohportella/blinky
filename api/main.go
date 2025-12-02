@@ -1,17 +1,26 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/caiohportella/blinky/controllers"
 	"github.com/caiohportella/blinky/initializers"
 	"github.com/caiohportella/blinky/middlewares"
+	"github.com/caiohportella/blinky/models"
 	"github.com/gin-gonic/gin"
 )
 
 func init() {
 	initializers.LoadEnvVariables()
 	initializers.ConnectToDatabase()
+
+	// Auto-migrate on startup
+	log.Println("Running database migrations...")
+	if err := initializers.DB.AutoMigrate(&models.User{}, &models.Link{}); err != nil {
+		log.Fatal("Failed to migrate database: ", err)
+	}
+	log.Println("Database migrations completed!")
 }
 
 func main() {
