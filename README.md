@@ -13,8 +13,7 @@
   <br />
 
   <div>
-    <img src="https://img.shields.io/badge/-Next_JS_16-black?style=for-the-badge&logoColor=white&logo=nextdotjs&color=000000" alt="nextjs" />
-    <img src="https://img.shields.io/badge/-React_19-black?style=for-the-badge&logoColor=white&logo=react&color=61DAFB" alt="react" />
+    <img src="https://img.shields.io/badge/-Next_JS-black?style=for-the-badge&logoColor=white&logo=nextdotjs&color=000000" alt="nextjs" />
     <img src="https://img.shields.io/badge/-Typescript-black?style=for-the-badge&logoColor=white&logo=typescript&color=3178C6" alt="typescript" />
     <img src="https://img.shields.io/badge/-Go-black?style=for-the-badge&logoColor=white&logo=go&color=00ADD8" alt="go" />
     <img src="https://img.shields.io/badge/-Gin-black?style=for-the-badge&logoColor=white&logo=gin&color=008ECF" alt="gin" />
