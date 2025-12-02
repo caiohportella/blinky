@@ -7,8 +7,8 @@
 <div align="center">
 
   <br />
-
-  <img width="1912" alt="blinky-preview" src="https://github.com/user-attachments/assets/placeholder-blinky" />
+  
+  <img width="1912" alt="blinky-preview" src="https://github.com/user-attachments/assets/20fcd232-8cce-499a-b54f-53a1c4f45461" />
 
   <br />
 
@@ -83,58 +83,6 @@ blinky/
 - **Forms:** [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) - Form validation
 - **Icons:** [Lucide React](https://lucide.dev/) - Beautiful & consistent icons
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- [Go 1.21+](https://go.dev/dl/)
-- [Node.js 18+](https://nodejs.org/)
-- [pnpm](https://pnpm.io/) (recommended) or npm
-- [PostgreSQL](https://www.postgresql.org/)
-
-### Environment Variables
-
-Create a `.env` file in the `api/` directory:
-
-```env
-DATABASE_URL=postgresql://user:password@localhost:5432/blinky
-JWT_SECRET=your-super-secret-jwt-key
-PORT=8080
-```
-
-### Running the API
-
-```bash
-# Navigate to the api directory
-cd api
-
-# Download dependencies
-go mod download
-
-# Run database migrations
-go run migrations/migrate.go
-
-# Start the server
-go run main.go
-```
-
-The API will be available at `http://localhost:8080`
-
-### Running the Client
-
-```bash
-# Navigate to the client directory
-cd client
-
-# Install dependencies
-pnpm install
-
-# Start the development server
-pnpm dev
-```
-
-The client will be available at `http://localhost:3000`
-
 ## 📡 API Endpoints
 
 ### Authentication
@@ -152,20 +100,9 @@ The client will be available at `http://localhost:3000`
 | DELETE | `/api/v1/links/:id` | Delete a link |
 | GET | `/api/v1/links/:id/stats` | Get link statistics |
 
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- [Next.js](https://nextjs.org/) for the amazing React framework
-- [Gin](https://gin-gonic.com/) for the blazing fast Go web framework
-- [shadcn/ui](https://ui.shadcn.com/) for the beautiful UI components
-- [Tailwind CSS](https://tailwindcss.com/) for the utility-first styling
-
 ---
 
 <div align="center">
-  Made with ❤️ by <a href="https://github.com/caiohportella">Caio Portella</a>
+  Made with ❤️ by <a href="https://github.com/caiohportella">Caio H. Portella</a>
 </div>
 
