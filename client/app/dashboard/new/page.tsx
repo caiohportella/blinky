@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { ArrowLeft, Link2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { getBaseUrl } from "@/hooks/get-base-url";
 
 export default function NewLinkPage() {
   return (
@@ -74,7 +75,7 @@ function NewLinkContent() {
       }
 
       toast.success("Link created!", {
-        description: `Your short link is ready: blinky.app.br/${newLink.shortCode}`,
+        description: `Your short link is ready: ${getBaseUrl()}/${newLink.shortCode}`,
       });
 
       router.push("/dashboard");
@@ -142,7 +143,7 @@ function NewLinkContent() {
                   <div className="flex gap-2">
                     <div className="flex-1 flex items-center gap-2 px-3 border border-input rounded-md bg-muted">
                       <span className="text-sm text-muted-foreground">
-                        {"blinky.app.br/"}
+                        {`${getBaseUrl()}/`}
                       </span>
                       <Input
                         id="customCode"
@@ -210,7 +211,7 @@ function NewLinkContent() {
                     {"Short link"}
                   </p>
                   <p className="font-mono text-accent">
-                    {"https://blinky.app.br/"}
+                    {`${origin}/`}
                     {customCode || "(auto-generated)"}
                   </p>
                 </div>

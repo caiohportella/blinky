@@ -9,9 +9,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "LinkShort - URL Shortener",
-  description: "Shorten, share, and track your links with ease",
-  generator: "v0.app",
+  title: "Blinky - URL Shortener",
+  description: "Shorten links, expand reach",
   icons: {
     icon: [
       {
@@ -38,7 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans antialiased`}>
+      <body className={`font-sans antialiased overflow-x-hidden`}>
         <AuthProvider>
           <Toaster richColors />
           {children}
