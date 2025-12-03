@@ -13,6 +13,7 @@ import { Link } from "@/lib/api";
 
 import Image from "next/image";
 import { toast } from "sonner";
+import { getBaseUrl } from "@/hooks/get-base-url";
 
 interface LinkItemProps {
   link: Link;
@@ -21,7 +22,7 @@ interface LinkItemProps {
 
 export function LinkItem({ link, onDelete }: LinkItemProps) {
   const [isDeleting, setIsDeleting] = useState(false);
-  const shortUrl = `https://blinky.app.br/${link.shortCode}`;
+  const shortUrl = `${getBaseUrl}/${link.shortCode}`;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(shortUrl);
