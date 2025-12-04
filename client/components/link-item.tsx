@@ -75,12 +75,15 @@ export function LinkItem({ link, onDelete }: LinkItemProps) {
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <button
-            onClick={handleCopy}
+          <a
+            href={shortUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-base font-medium hover:underline truncate"
+            onClick={handleCopy}
           >
             {shortUrl}
-          </button>
+          </a>
           <Button
             variant="ghost"
             size="icon"
