@@ -124,7 +124,7 @@ func SignUpWithToken(c *gin.Context) {
 	}
 
 	user := models.User{
-		Email:    req.Email,
+		Email:    strings.ToLower(req.Email),
 		Password: string(hash),
 		Role:     models.RoleUser,
 		Name:     req.Name,
@@ -180,11 +180,12 @@ func LoginWithToken(c *gin.Context) {
 		return
 	}
 
-	// Look up user by email
+	// Look up user by email (case-insensitive)
 	var user models.User
-	result := initializers.DB.Where("email = ?", req.Email).First(&user)
+	result := initializers.DB.Where("LOWER(email) = ?", strings.ToLower(req.Email)).First(&user)
 
 	if result.Error != nil {
+		fmt.Printf("Login failed: User not found for email %s\n", req.Email)
 		c.JSON(http.StatusUnauthorized, dtos.ErrorResponse{
 			Success: false,
 			Error:   "Invalid email or password",
@@ -195,6 +196,7 @@ func LoginWithToken(c *gin.Context) {
 	// Compare password with stored hash
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if err != nil {
+		fmt.Printf("Login failed: Password mismatch for user %s\n", req.Email)
 		c.JSON(http.StatusUnauthorized, dtos.ErrorResponse{
 			Success: false,
 			Error:   "Invalid email or password",
@@ -260,9 +262,9 @@ func Verify2FA(c *gin.Context) {
 		return
 	}
 
-	// Look up user by email
+	// Look up user by email (case-insensitive)
 	var user models.User
-	if err := initializers.DB.Where("email = ?", req.Email).First(&user).Error; err != nil {
+	if err := initializers.DB.Where("LOWER(email) = ?", strings.ToLower(req.Email)).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, dtos.ErrorResponse{
 			Success: false,
 			Error:   "Invalid verification attempt",
