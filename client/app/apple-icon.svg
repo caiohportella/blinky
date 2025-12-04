@@ -1,0 +1,23 @@
+<svg viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="180" height="180" rx="40" fill="#18181b"/>
+  <!-- Eye Outline -->
+  <path
+    d="M90 55C55 55 25 90 25 90C25 90 55 125 90 125C125 125 155 90 155 90C155 90 125 55 90 55Z"
+    stroke="#ffffff"
+    stroke-width="8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="#18181b"
+  />
+  <!-- Lightning Bolt Iris -->
+  <path
+    d="M99 63L81 90H99L81 117L117 81H99L117 63H99Z"
+    fill="#e7cc01"
+    stroke="#e7cc01"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
+
