@@ -305,3 +305,29 @@ func GetLinkStats(c *gin.Context) {
 	})
 }
 
+// RedirectLink handles public short link redirects (no auth required)
+func RedirectLink(c *gin.Context) {
+	shortCode := c.Param("shortCode")
+
+	// Find the link by short code
+	var link models.Link
+	if err := initializers.DB.Where("short_code = ?", shortCode).First(&link).Error; err != nil {
+		c.JSON(http.StatusNotFound, dtos.ErrorResponse{
+			Success: false,
+			Error:   "Link not found",
+		})
+		return
+	}
+
+	// Increment click count
+	initializers.DB.Model(&link).Update("clicks", link.Clicks+1)
+
+	// Return the original URL for redirect
+	c.JSON(http.StatusOK, dtos.SuccessResponse{
+		Success: true,
+		Data: gin.H{
+			"originalUrl": link.OriginalURL,
+		},
+	})
+}
+

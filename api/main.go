@@ -31,6 +31,9 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"message": "API is running"})
 	})
 
+	// Public redirect endpoint (no auth required)
+	router.GET("/r/:shortCode", controllers.RedirectLink)
+
 	v1 := router.Group("/api/v1")
 	{
 		users := v1.Group("/users")
