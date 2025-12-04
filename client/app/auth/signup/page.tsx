@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useStoreValue } from "@simplestack/store/react";
-import { signup, isAuthenticatedStore } from "@/lib/auth-store";
+import { signup, verify2FA, isAuthenticatedStore } from "@/lib/auth-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,12 +15,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Logo } from "@/components/logo";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, ArrowLeft, Mail } from "lucide-react";
 
 const signupSchema = z.object({
   firstName: z.string().min(2, "Firstname must be at least 2 characters"),
@@ -40,6 +45,9 @@ export default function SignUpPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [show2FA, setShow2FA] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [email, setEmail] = useState("");
   const isAuthenticated = useStoreValue(isAuthenticatedStore);
 
   // Redirect to dashboard if already authenticated
@@ -78,17 +86,127 @@ export default function SignUpPage() {
 
     setIsLoading(false);
 
-    if (result && !result.error) {
+    if (result?.requires2FA) {
+      setEmail(values.email);
+      setShow2FA(true);
+      toast.success("Account created!", {
+        description: "Check your email for the verification code.",
+      });
+      return;
+    }
+
+    if (result && !result.requires2FA) {
       toast.success("Success!", {
         description: "Your account has been created successfully.",
       });
       router.push("/dashboard");
-    } else if (result?.error) {
-      setError(result.error);
-      toast.error("Sign up failed", {
-        description: result.error,
-      });
     }
+  }
+
+  async function handleVerify2FA() {
+    if (otp.length !== 6) {
+      setError("Please enter a valid 6-digit code");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await verify2FA(email, otp);
+      toast.success("Welcome to Blinky!", {
+        description: "Your account has been verified.",
+      });
+      router.push("/dashboard");
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Invalid verification code";
+      setError(errorMessage);
+      toast.error("Verification failed", {
+        description: errorMessage,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  if (show2FA) {
+    return (
+      <section className="flex min-h-screen bg-background px-4 py-16 md:py-32 relative overflow-hidden">
+        {/* Background Blobs */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+          <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-accent/5 rounded-full blur-3xl" />
+        </div>
+
+        <div className="bg-card m-auto h-fit w-full max-w-md rounded-3xl border-2 p-0.5 shadow-xl relative z-10">
+          <div className="p-8 pb-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <Mail className="h-8 w-8 text-primary" />
+              </div>
+              <h1 className="mb-1 text-2xl font-bold">Check your email</h1>
+              <p className="text-sm text-muted-foreground">
+                {"We've sent a verification code to"}
+              </p>
+              <p className="mt-1 font-medium text-foreground">{email}</p>
+            </div>
+
+            <hr className="my-6 border-dashed" />
+
+            {error && (
+              <div className="flex items-center gap-2 p-3 mb-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <div className="space-y-6">
+              <div className="flex flex-col items-center gap-3">
+                <p className="text-sm text-muted-foreground">
+                  Enter the 6-digit code
+                </p>
+                <InputOTP
+                  maxLength={6}
+                  value={otp}
+                  onChange={(value: string) => setOtp(value)}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+
+              <Button
+                onClick={handleVerify2FA}
+                className="w-full"
+                disabled={isLoading || otp.length !== 6}
+              >
+                {isLoading ? "Verifying..." : "Verify & Complete Signup"}
+              </Button>
+
+              <Button
+                variant="ghost"
+                className="w-full"
+                onClick={() => {
+                  setShow2FA(false);
+                  setOtp("");
+                  setError(null);
+                }}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to signup
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (

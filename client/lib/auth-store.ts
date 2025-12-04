@@ -26,16 +26,57 @@ export const isLoadingStore = authStore.select("isLoading");
 export const errorStore = authStore.select("error");
 
 // Auth action functions
-export const signin = async (email: string, password: string) => {
+export const signin = async (email: string, password: string): Promise<{ requires2FA: boolean }> => {
   isLoadingStore.set(true);
   errorStore.set(null);
 
   try {
-    const { user, token, error } = await authApi.signin(email, password);
+    const { user, token, requires2FA, error } = await authApi.signin(email, password);
+
+    if (error) {
+      errorStore.set(error);
+      throw new Error(error);
+    }
+
+    // If 2FA is required, return without setting auth state
+    if (requires2FA) {
+      isLoadingStore.set(false);
+      return { requires2FA: true };
+    }
+
+    if (!user || !token) {
+      errorStore.set("Login failed");
+      throw new Error("Login failed");
+    }
+
+    // Update store with user data
+    userStore.set(user);
+    tokenStore.set(token);
+    isAuthenticatedStore.set(true);
+
+    // Persist token
+    localStorage.setItem("auth_token", token);
+
+    return { requires2FA: false };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Login failed";
+    errorStore.set(message);
+    throw error;
+  } finally {
+    isLoadingStore.set(false);
+  }
+};
+
+export const verify2FA = async (email: string, code: string) => {
+  isLoadingStore.set(true);
+  errorStore.set(null);
+
+  try {
+    const { user, token, error } = await authApi.verify2FA(email, code);
 
     if (error || !user || !token) {
-      errorStore.set(error || "Login failed");
-      throw new Error(error || "Login failed");
+      errorStore.set(error || "Verification failed");
+      throw new Error(error || "Verification failed");
     }
 
     // Update store with user data
@@ -48,7 +89,7 @@ export const signin = async (email: string, password: string) => {
 
     return user;
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Login failed";
+    const message = error instanceof Error ? error.message : "Verification failed";
     errorStore.set(message);
     throw error;
   } finally {
@@ -56,16 +97,27 @@ export const signin = async (email: string, password: string) => {
   }
 };
 
-export const signup = async (email: string, password: string, name: string) => {
+export const signup = async (email: string, password: string, name: string): Promise<{ requires2FA: boolean }> => {
   isLoadingStore.set(true);
   errorStore.set(null);
 
   try {
-    const { user, token, error } = await authApi.signup(email, password, name);
+    const { user, token, requires2FA, error } = await authApi.signup(email, password, name);
 
     if (error) {
       errorStore.set(error);
       throw new Error(error);
+    }
+
+    // If 2FA is required, return without setting auth state
+    if (requires2FA) {
+      isLoadingStore.set(false);
+      return { requires2FA: true };
+    }
+
+    if (!user || !token) {
+      errorStore.set("Signup failed");
+      throw new Error("Signup failed");
     }
 
     // Update store with user data
@@ -74,13 +126,9 @@ export const signup = async (email: string, password: string, name: string) => {
     isAuthenticatedStore.set(true);
 
     // Persist token
-    localStorage.setItem("auth_token", token ?? "");
+    localStorage.setItem("auth_token", token);
 
-    return {
-      user,
-      token,
-      error: null,
-    };
+    return { requires2FA: false };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Signup failed";
     errorStore.set(message);

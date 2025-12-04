@@ -17,7 +17,7 @@ func init() {
 
 	// Auto-migrate on startup
 	log.Println("Running database migrations...")
-	if err := initializers.DB.AutoMigrate(&models.User{}, &models.Link{}); err != nil {
+	if err := initializers.DB.AutoMigrate(&models.User{}, &models.Link{}, &models.OTP{}, &models.TwoFactorSession{}); err != nil {
 		log.Fatal("Failed to migrate database: ", err)
 	}
 	log.Println("Database migrations completed!")
@@ -40,6 +40,7 @@ func main() {
 		{
 			users.POST("", controllers.SignUpWithToken)
 			users.POST("/login", controllers.LoginWithToken)
+			users.POST("/verify-2fa", controllers.Verify2FA)
 			users.GET("/me", middlewares.RequireAuthWithToken, controllers.GetCurrentUser)
 		}
 

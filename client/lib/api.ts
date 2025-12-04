@@ -2,6 +2,24 @@ import { isLoadingStore } from "./auth-store";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
+const DEVICE_TOKEN_KEY = "blinky_device_token";
+
+// Device token management
+export const deviceToken = {
+  get(): string | null {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem(DEVICE_TOKEN_KEY);
+  },
+  set(token: string): void {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(DEVICE_TOKEN_KEY, token);
+  },
+  clear(): void {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem(DEVICE_TOKEN_KEY);
+  },
+};
+
 export interface User {
   id: string;
   email: string;
@@ -35,21 +53,25 @@ export const authApi = {
   ): Promise<{
     user: User | null;
     token: string | null;
+    requires2FA?: boolean;
     error?: string | null;
   }> {
     try {
       const response = await fetch(`${API_URL}/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name }),
+        body: JSON.stringify({ email, password, name, deviceToken: deviceToken.get() }),
       });
 
       const res: ApiResponse<{
-        id: number;
+        id?: number;
         email: string;
-        name: string;
-        role: string;
-        token: string;
+        name?: string;
+        role?: string;
+        token?: string;
+        deviceToken?: string;
+        requires2FA?: boolean;
+        message?: string;
       }> = await response.json();
 
       if (!res.success || res.error) {
@@ -60,15 +82,30 @@ export const authApi = {
         };
       }
 
+      // Check if 2FA is required (signup now requires 2FA)
+      if (res.data?.requires2FA) {
+        return {
+          user: null,
+          token: null,
+          requires2FA: true,
+          error: null,
+        };
+      }
+
+      // Store device token if returned
+      if (res.data?.deviceToken) {
+        deviceToken.set(res.data.deviceToken);
+      }
+
       return {
         user: {
           id: String(res.data!.id),
           email: res.data!.email,
-          name: res.data!.name,
-          role: res.data!.role.toLowerCase() as "user" | "admin",
+          name: res.data!.name!,
+          role: res.data!.role!.toLowerCase() as "user" | "admin",
           createdAt: new Date().toISOString(),
         },
-        token: res.data!.token,
+        token: res.data!.token!,
         error: null,
       };
     } catch (error) {
@@ -88,21 +125,25 @@ export const authApi = {
   ): Promise<{
     user: User | null;
     token: string | null;
+    requires2FA?: boolean;
     error?: string | null;
   }> {
     try {
       const response = await fetch(`${API_URL}/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, deviceToken: deviceToken.get() }),
       });
 
       const res: ApiResponse<{
-        id: number;
+        id?: number;
         email: string;
-        name: string;
-        role: string;
-        token: string;
+        name?: string;
+        role?: string;
+        token?: string;
+        deviceToken?: string;
+        requires2FA?: boolean;
+        message?: string;
       }> = await response.json();
 
       // Check for HTTP errors (401, 400, etc.)
@@ -122,15 +163,30 @@ export const authApi = {
         };
       }
 
+      // Check if 2FA is required
+      if (res.data?.requires2FA) {
+        return {
+          user: null,
+          token: null,
+          requires2FA: true,
+          error: null,
+        };
+      }
+
+      // Store device token if returned (trusted device)
+      if (res.data?.deviceToken) {
+        deviceToken.set(res.data.deviceToken);
+      }
+
       return {
         user: {
           id: String(res.data!.id),
           email: res.data!.email,
-          name: res.data!.name,
-          role: res.data!.role.toLowerCase() as "user" | "admin",
+          name: res.data!.name!,
+          role: res.data!.role!.toLowerCase() as "user" | "admin",
           createdAt: new Date().toISOString(),
         },
-        token: res.data!.token,
+        token: res.data!.token!,
         error: null,
       };
     } catch (error) {
@@ -143,9 +199,68 @@ export const authApi = {
     }
   },
 
+  async verify2FA(
+    email: string,
+    code: string
+  ): Promise<{
+    user: User | null;
+    token: string | null;
+    error?: string | null;
+  }> {
+    try {
+      const response = await fetch(`${API_URL}/users/verify-2fa`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code, deviceToken: deviceToken.get() }),
+      });
+
+      const res: ApiResponse<{
+        id: number;
+        email: string;
+        name: string;
+        role: string;
+        token: string;
+        deviceToken?: string;
+      }> = await response.json();
+
+      if (!response.ok || !res.success || res.error) {
+        return {
+          user: null,
+          token: null,
+          error: res.error || "Invalid verification code",
+        };
+      }
+
+      // Store the device token for future logins (1 week cache)
+      if (res.data?.deviceToken) {
+        deviceToken.set(res.data.deviceToken);
+      }
+
+      return {
+        user: {
+          id: String(res.data!.id),
+          email: res.data!.email,
+          name: res.data!.name,
+          role: res.data!.role.toLowerCase() as "user" | "admin",
+          createdAt: new Date().toISOString(),
+        },
+        token: res.data!.token,
+        error: null,
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Verification failed";
+      return {
+        user: null,
+        token: null,
+        error: message.includes("fetch") ? "Unable to connect to server" : message,
+      };
+    }
+  },
+
   async signout(): Promise<void> {
     // Client-side only logout - just clear local state
     // The JWT will expire naturally on the server side
+    // Note: We keep the device token so 2FA is cached for next login
   },
 
   async getCurrentUser(token: string): Promise<User | null> {
