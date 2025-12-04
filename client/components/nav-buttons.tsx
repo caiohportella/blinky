@@ -1,12 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useStoreValue } from "@simplestack/store/react";
-import { isAuthenticatedStore } from "@/lib/auth-store";
+import { isAuthenticatedStore, signout } from "@/lib/auth-store";
 import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
+import { toast } from "sonner";
 
 export function NavButtons() {
+  const router = useRouter();
   const isAuthenticated = useStoreValue(isAuthenticatedStore);
+
+  const handleLogout = async () => {
+    await signout();
+    toast.success("Logged out", {
+      description: "You have been successfully logged out.",
+    });
+    router.push("/");
+  };
 
   if (isAuthenticated) {
     return (
@@ -16,6 +28,15 @@ export function NavButtons() {
             Dashboard
           </Button>
         </Link>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleLogout}
+          className="rounded-full h-8 w-8 hover:bg-destructive/10 hover:text-destructive transition-colors"
+          title="Log out"
+        >
+          <LogOut className="h-4 w-4" />
+        </Button>
       </nav>
     );
   }

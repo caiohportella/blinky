@@ -98,8 +98,8 @@ export const signout = async () => {
     if (token) {
       await authApi.signout();
     }
-  } catch (error) {
-    console.error("Signout error:", error);
+  } catch {
+    // Silently handle signout errors
   } finally {
     // Clear auth state
     authStore.set({

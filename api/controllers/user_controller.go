@@ -103,7 +103,7 @@ func LoginWithToken(c *gin.Context) {
 	if result.Error != nil {
 		c.JSON(http.StatusUnauthorized, dtos.ErrorResponse{
 			Success: false,
-			Error:   "Invalid email or password",
+			Error:   "Invalid email",
 		})
 		return
 	}
@@ -113,7 +113,7 @@ func LoginWithToken(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, dtos.ErrorResponse{
 			Success: false,
-			Error:   "Invalid email or password",
+			Error:   "Invalid password",
 		})
 		return
 	}

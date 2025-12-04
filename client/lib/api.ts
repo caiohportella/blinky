@@ -1,6 +1,6 @@
 import { isLoadingStore } from "./auth-store";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
 
 export interface User {
   id: string;
@@ -105,6 +105,15 @@ export const authApi = {
         token: string;
       }> = await response.json();
 
+      // Check for HTTP errors (401, 400, etc.)
+      if (!response.ok) {
+        return {
+          user: null,
+          token: null,
+          error: res.error || "Invalid email or password",
+        };
+      }
+
       if (!res.success || res.error) {
         return {
           user: null,
@@ -125,10 +134,11 @@ export const authApi = {
         error: null,
       };
     } catch (error) {
+      const message = error instanceof Error ? error.message : "Sign in failed";
       return {
         user: null,
         token: null,
-        error: error instanceof Error ? error.message : "Sign in failed",
+        error: message.includes("fetch") ? "Unable to connect to server" : message,
       };
     }
   },

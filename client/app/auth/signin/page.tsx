@@ -20,7 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Logo } from "@/components/logo";
-import { Icons } from "@/components/icons";
+import { AlertCircle } from "lucide-react";
 
 const signinSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -34,6 +34,7 @@ type SigninFormValues = z.infer<typeof signinSchema>;
 export default function SignInPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const isAuthenticated = useStoreValue(isAuthenticatedStore);
 
   // Redirect to dashboard if already authenticated
@@ -53,6 +54,7 @@ export default function SignInPage() {
 
   async function onSubmit(values: SigninFormValues) {
     setIsLoading(true);
+    setError(null);
 
     try {
       await signin(values.email, values.password);
@@ -61,11 +63,13 @@ export default function SignInPage() {
       });
       router.push("/dashboard");
     } catch (error) {
-      toast.error("Error", {
-        description:
-          error instanceof Error
-            ? error.message
-            : "Something went wrong. Please try again.",
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.";
+      setError(errorMessage);
+      toast.error("Sign in failed", {
+        description: errorMessage,
       });
     } finally {
       setIsLoading(false);
@@ -91,6 +95,13 @@ export default function SignInPage() {
           </div>
 
           <hr className="my-4 border-dashed" />
+
+          {error && (
+            <div className="flex items-center gap-2 p-3 mb-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

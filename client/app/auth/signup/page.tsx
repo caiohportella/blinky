@@ -20,7 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Logo } from "@/components/logo";
-import { Icons } from "@/components/icons";
+import { AlertCircle } from "lucide-react";
 
 const signupSchema = z.object({
   firstName: z.string().min(2, "Firstname must be at least 2 characters"),
@@ -39,6 +39,7 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 export default function SignUpPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const isAuthenticated = useStoreValue(isAuthenticatedStore);
 
   // Redirect to dashboard if already authenticated
@@ -60,29 +61,33 @@ export default function SignUpPage() {
 
   async function onSubmit(values: SignupFormValues) {
     setIsLoading(true);
+    setError(null);
 
-    try {
-      const fullName = `${values.firstName} ${values.lastName}`;
-      const res = await signup(values.email, values.password, fullName);
-      if (res.error) {
-        toast.error("Error", {
-          description: res.error,
-        });
-        return;
-      }
+    const fullName = `${values.firstName} ${values.lastName}`;
+    const result = await signup(values.email, values.password, fullName).catch((err) => {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.";
+      setError(errorMessage);
+      toast.error("Sign up failed", {
+        description: errorMessage,
+      });
+      return null;
+    });
+
+    setIsLoading(false);
+
+    if (result && !result.error) {
       toast.success("Success!", {
         description: "Your account has been created successfully.",
       });
       router.push("/dashboard");
-    } catch (error) {
-      toast.error("Error", {
-        description:
-          error instanceof Error
-            ? error.message
-            : "Something went wrong. Please try again.",
+    } else if (result?.error) {
+      setError(result.error);
+      toast.error("Sign up failed", {
+        description: result.error,
       });
-    } finally {
-      setIsLoading(false);
     }
   }
 
@@ -105,6 +110,13 @@ export default function SignUpPage() {
           </div>
 
           <hr className="my-4 border-dashed" />
+
+          {error && (
+            <div className="flex items-center gap-2 p-3 mb-4 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm animate-in fade-in slide-in-from-top-1 duration-200">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
