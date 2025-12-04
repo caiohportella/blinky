@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/card";
 import { ArrowLeft, Link2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { getBaseUrl } from "@/hooks/get-base-url";
+import { useBaseUrl } from "@/hooks/use-base-url";
 
 export default function NewLinkPage() {
   return (
@@ -32,6 +32,7 @@ export default function NewLinkPage() {
 function NewLinkContent() {
   const router = useRouter();
   const token = useStoreValue(tokenStore);
+  const baseUrl = useBaseUrl();
 
   const [originalUrl, setOriginalUrl] = useState("");
   const [customCode, setCustomCode] = useState("");
@@ -75,7 +76,7 @@ function NewLinkContent() {
       }
 
       toast.success("Link created!", {
-        description: `Your short link is ready: ${getBaseUrl()}/${newLink.shortCode}`,
+        description: `Your short link is ready: ${baseUrl}/${newLink.shortCode}`,
       });
 
       router.push("/dashboard");
@@ -143,7 +144,7 @@ function NewLinkContent() {
                   <div className="flex gap-2">
                     <div className="flex-1 flex items-center gap-2 px-3 border border-input rounded-md bg-muted">
                       <span className="text-sm text-muted-foreground">
-                        {`${getBaseUrl()}/`}
+                        {baseUrl ? `${baseUrl}/` : ".../"}
                       </span>
                       <Input
                         id="customCode"
@@ -211,7 +212,7 @@ function NewLinkContent() {
                     {"Short link"}
                   </p>
                   <p className="font-mono text-accent">
-                    {`${origin}/`}
+                    {baseUrl ? `${baseUrl}/` : ".../"}
                     {customCode || "(auto-generated)"}
                   </p>
                 </div>

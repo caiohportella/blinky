@@ -13,7 +13,7 @@ import { Link } from "@/lib/api";
 
 import Image from "next/image";
 import { toast } from "sonner";
-import { getBaseUrl } from "@/hooks/get-base-url";
+import { useBaseUrl } from "@/hooks/use-base-url";
 
 interface LinkItemProps {
   link: Link;
@@ -22,7 +22,8 @@ interface LinkItemProps {
 
 export function LinkItem({ link, onDelete }: LinkItemProps) {
   const [isDeleting, setIsDeleting] = useState(false);
-  const shortUrl = `${getBaseUrl}/${link.shortCode}`;
+  const baseUrl = useBaseUrl();
+  const shortUrl = baseUrl ? `${baseUrl}/${link.shortCode}` : `.../${link.shortCode}`;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(shortUrl);
@@ -54,7 +55,7 @@ export function LinkItem({ link, onDelete }: LinkItemProps) {
 
   return (
     <div className="flex items-center gap-4 p-4 rounded-2xl border-2 border-border bg-card hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         {link.favicon ? (
           <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center overflow-hidden">
             <Image
@@ -83,21 +84,21 @@ export function LinkItem({ link, onDelete }: LinkItemProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 flex-shrink-0"
+            className="h-6 w-6 shrink-0"
             onClick={handleCopy}
           >
             <Copy className="w-3 h-3" />
           </Button>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <ExternalLink className="w-3 h-3 flex-shrink-0" />
+          <ExternalLink className="w-3 h-3 shrink-0" />
           <span className="truncate">{link.originalUrl}</span>
-          <span className="flex-shrink-0">{"•"}</span>
-          <span className="flex-shrink-0">{formattedDate}</span>
+          <span className="shrink-0">{"•"}</span>
+          <span className="shrink-0">{formattedDate}</span>
         </div>
       </div>
 
-      <div className="flex items-center gap-4 flex-shrink-0">
+      <div className="flex items-center gap-4 shrink-0">
         <div className="text-right bg-primary/10 px-3 py-1 rounded-xl">
           <div className="text-2xl font-bold text-primary">{link.clicks}</div>
           <div className="text-xs font-medium text-muted-foreground">{"clicks"}</div>
