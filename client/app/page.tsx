@@ -52,20 +52,7 @@ export default function LandingPage() {
             Create, manage, and track your links with a smile. Blinky makes URL shortening fun and powerful.
           </p>
 
-          {/* Shorten Input Mockup */}
-          <div className="w-full max-w-lg mx-auto mt-8 p-1 md:p-2 bg-card rounded-full border-2 border-border shadow-lg flex items-center gap-1 md:gap-2 pl-3 md:pl-6 pr-1 md:pr-2">
-             <Link2 className="w-5 h-5 text-muted-foreground shrink-0" />
-             <input 
-                type="text" 
-                placeholder="Paste your long link here..." 
-                className="flex-1 bg-transparent border-none outline-none text-base md:text-lg placeholder:text-muted-foreground/70 min-w-0"
-             />
-             <Button size="lg" className="rounded-full px-2 md:px-8 shrink-0">
-               Shorten!
-             </Button>
-          </div>
-
-          <div className="flex items-center justify-center gap-4 flex-wrap pt-8">
+          <div className="flex items-center justify-center gap-4 flex-wrap pt-16">
             <Link href="/auth/signup">
               <Button size="lg" className="gap-2 px-6 md:px-8 h-12 md:h-14 text-base md:text-lg shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all">
                 {"Start for free"}
@@ -165,7 +152,7 @@ export default function LandingPage() {
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </Link>
-            <Link href="/docs">
+            <Link href="https://github.com/caiohportella/blinky" target="_blank">
               <Button size="lg" variant="outline" className="px-6 md:px-8 h-12 text-lg rounded-full border-2">
                 {"Read Documentation"}
               </Button>
@@ -183,13 +170,13 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <Logo />
             <div className="flex flex-wrap items-center justify-center gap-8 text-sm font-medium text-muted-foreground">
-              <Link href="/docs" className="hover:text-primary transition-colors">Documentation</Link>
-              <Link href="/pricing" className="hover:text-primary transition-colors">Pricing</Link>
-              <Link href="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
-              <Link href="/terms" className="hover:text-primary transition-colors">Terms</Link>
+              <Link href="https://github.com/caiohportella/blinky" target="_blank" className="hover:text-primary transition-colors">Documentation</Link>
+              <Link href="https://github.com/caiohportella/blinky" target="_blank" className="hover:text-primary transition-colors">Pricing</Link>
+              <Link href="https://github.com/caiohportella/blinky" target="_blank" className="hover:text-primary transition-colors">Privacy</Link>
+              <Link href="https://github.com/caiohportella/blinky" target="_blank" className="hover:text-primary transition-colors">Terms</Link>
             </div>
             <p className="text-sm text-muted-foreground text-center md:text-right">
-              {"© 2025 Blinky. All rights reserved."}
+              {`© ${new Date().getFullYear()} Blinky. All rights reserved.`}
             </p>
           </div>
         </div>
